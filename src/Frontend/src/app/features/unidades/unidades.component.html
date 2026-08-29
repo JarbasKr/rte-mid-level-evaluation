@@ -1,0 +1,113 @@
+<section>
+  <div class="page-header">
+    <div>
+      <h1>Unidades</h1>
+      <p>Unidade inativa não recebe novos colaboradores.</p>
+    </div>
+    <button class="btn btn-primary" type="button" (click)="abrirCriacao()">Nova unidade</button>
+  </div>
+
+  @if (error) {
+    <div class="alert alert-error">{{ error }}</div>
+  }
+
+  <div class="card table-wrap">
+    @if (loading && unidades.length === 0) {
+      <p class="empty">Carregando unidades...</p>
+    } @else if (unidades.length === 0) {
+      <p class="empty">Nenhuma unidade cadastrada.</p>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nome</th>
+            <th>Status</th>
+            <th>Colaboradores</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (unidade of unidades; track unidade.id) {
+            <tr>
+              <td>{{ unidade.codigo }}</td>
+              <td>{{ unidade.nome }}</td>
+              <td>
+                <span class="badge" [class.badge-ativo]="unidade.status === 'Ativo'" [class.badge-inativo]="unidade.status === 'Inativo'">
+                  {{ unidade.status }}
+                </span>
+              </td>
+              <td>{{ unidade.quantidadeColaboradores }}</td>
+              <td>
+                <button class="btn btn-ghost" type="button" (click)="verColaboradores(unidade)">Ver colaboradores</button>
+                <button class="btn btn-ghost" type="button" (click)="abrirEdicao(unidade)">Atualizar</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</section>
+
+@if (detalhe) {
+  <div class="modal-backdrop" (click)="detalhe = undefined">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2>{{ detalhe.codigo }} — {{ detalhe.nome }}</h2>
+      @if (detalhe.colaboradores.length === 0) {
+        <p class="empty">Esta unidade ainda não possui colaboradores.</p>
+      } @else {
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Nome</th>
+              <th>Usuário</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (colaborador of detalhe.colaboradores; track colaborador.id) {
+              <tr>
+                <td>{{ colaborador.codigo }}</td>
+                <td>{{ colaborador.nome }}</td>
+                <td>{{ colaborador.usuarioLogin }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+      <div class="modal-actions">
+        <button class="btn btn-primary" type="button" (click)="detalhe = undefined">Fechar</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (modalAberto) {
+  <div class="modal-backdrop" (click)="modalAberto = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2>{{ modo === 'criar' ? 'Nova unidade' : 'Atualizar unidade' }}</h2>
+      <form [formGroup]="form" (ngSubmit)="salvar()" class="form-grid">
+        <div>
+          <label>Código</label>
+          <input formControlName="codigo">
+        </div>
+        <div>
+          <label>Nome</label>
+          <input formControlName="nome">
+        </div>
+        <div>
+          <label>Status</label>
+          <select formControlName="status">
+            <option value="Ativo">Ativo</option>
+            <option value="Inativo">Inativo</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" type="button" (click)="modalAberto = false">Cancelar</button>
+          <button class="btn btn-primary" type="submit">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

@@ -1,0 +1,25 @@
+<section class="login-page">
+  <div class="card login-card">
+    <h1>Portal RTE</h1>
+    <p>Gestão de colaboradores e unidades</p>
+
+    @if (error) {
+      <div class="alert alert-error">{{ error }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
+      <div>
+        <label for="login">Login</label>
+        <input id="login" formControlName="login" autocomplete="username">
+      </div>
+      <div>
+        <label for="senha">Senha</label>
+        <input id="senha" type="password" formControlName="senha" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary" type="submit" [disabled]="loading">
+        {{ loading ? 'Entrando...' : 'Entrar' }}
+      </button>
+    </form>
+    <p class="seed">Usuário inicial: <strong>admin</strong> / <strong>Admin&#64;123</strong></p>
+  </div>
+</section>

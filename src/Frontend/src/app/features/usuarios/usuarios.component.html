@@ -1,0 +1,88 @@
+<section>
+  <div class="page-header">
+    <div>
+      <h1>Usuários</h1>
+      <p>Cadastro, filtro por status e atualização de senha/status.</p>
+    </div>
+    <button class="btn btn-primary" type="button" (click)="abrirCriacao()">Novo usuário</button>
+  </div>
+
+  @if (error) {
+    <div class="alert alert-error">{{ error }}</div>
+  }
+
+  <div class="toolbar">
+    <label for="filtro">Status</label>
+    <select id="filtro" [(ngModel)]="filtro" (ngModelChange)="carregar()" style="max-width: 220px">
+      <option value="">Todos</option>
+      <option value="Ativo">Ativo</option>
+      <option value="Inativo">Inativo</option>
+    </select>
+  </div>
+
+  <div class="card table-wrap">
+    @if (loading && usuarios.length === 0) {
+      <p class="empty">Carregando usuários...</p>
+    } @else if (usuarios.length === 0) {
+      <p class="empty">Nenhum usuário encontrado para o filtro selecionado.</p>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>Login</th>
+            <th>Código</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (usuario of usuarios; track usuario.id) {
+            <tr>
+              <td>{{ usuario.login }}</td>
+              <td>{{ usuario.codigo }}</td>
+              <td>
+                <span class="badge" [class.badge-ativo]="usuario.status === 'Ativo'" [class.badge-inativo]="usuario.status === 'Inativo'">
+                  {{ usuario.status }}
+                </span>
+              </td>
+              <td><button class="btn btn-ghost" type="button" (click)="abrirEdicao(usuario)">Atualizar</button></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</section>
+
+@if (modalAberto) {
+  <div class="modal-backdrop" (click)="modalAberto = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2>{{ modo === 'criar' ? 'Novo usuário' : 'Atualizar usuário' }}</h2>
+      <form [formGroup]="form" (ngSubmit)="salvar()" class="form-grid">
+        <div>
+          <label>Código</label>
+          <input formControlName="codigo">
+        </div>
+        <div>
+          <label>Login</label>
+          <input formControlName="login">
+        </div>
+        <div>
+          <label>Senha {{ modo === 'editar' ? '(opcional)' : '' }}</label>
+          <input type="password" formControlName="senha">
+        </div>
+        <div>
+          <label>Status</label>
+          <select formControlName="status">
+            <option value="Ativo">Ativo</option>
+            <option value="Inativo">Inativo</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" type="button" (click)="modalAberto = false">Cancelar</button>
+          <button class="btn btn-primary" type="submit">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: rte-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: rte_gestao
+      POSTGRES_USER: rte
+      POSTGRES_PASSWORD: rte_dev_pwd
+    ports:
+      - "5432:5432"
+    volumes:
+      - rte_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rte -d rte_gestao"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./src/Backend
+      dockerfile: Dockerfile
+    container_name: rte-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=rte_gestao;Username=rte;Password=rte_dev_pwd
+      Jwt__Issuer: rte-gestao
+      Jwt__Audience: rte-gestao-portal
+      Jwt__Secret: ${JWT_SECRET:-rte-avaliacao-tecnica-chave-super-secreta-32b}
+      Jwt__ExpirationMinutes: "120"
+    ports:
+      - "5000:8080"
+
+  frontend:
+    build:
+      context: ./src/Frontend
+      dockerfile: Dockerfile
+    container_name: rte-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"
+
+volumes:
+  rte_pgdata:

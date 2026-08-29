@@ -1,0 +1,98 @@
+<section>
+  <div class="page-header">
+    <div>
+      <h1>Colaboradores</h1>
+      <p>Associação obrigatória com unidade ativa e usuário.</p>
+    </div>
+    <button class="btn btn-primary" type="button" (click)="abrirCriacao()">Novo colaborador</button>
+  </div>
+
+  @if (error) {
+    <div class="alert alert-error">{{ error }}</div>
+  }
+
+  <div class="card table-wrap">
+    @if (loading && colaboradores.length === 0) {
+      <p class="empty">Carregando colaboradores...</p>
+    } @else if (colaboradores.length === 0) {
+      <p class="empty">Nenhum colaborador cadastrado.</p>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nome</th>
+            <th>Unidade</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of colaboradores; track item.id) {
+            <tr>
+              <td>{{ item.codigo }}</td>
+              <td>{{ item.nome }}</td>
+              <td>{{ item.unidadeCodigo }} — {{ item.unidadeNome }}</td>
+              <td>
+                <button class="btn btn-ghost" type="button" (click)="abrirEdicao(item)">Editar</button>
+                <button class="btn btn-danger" type="button" (click)="confirmarExclusao = item">Excluir</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</section>
+
+@if (modalAberto) {
+  <div class="modal-backdrop" (click)="modalAberto = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2>{{ modo === 'criar' ? 'Novo colaborador' : 'Editar colaborador' }}</h2>
+      <form [formGroup]="form" (ngSubmit)="salvar()" class="form-grid">
+        <div>
+          <label>Código</label>
+          <input formControlName="codigo">
+        </div>
+        <div>
+          <label>Nome</label>
+          <input formControlName="nome">
+        </div>
+        <div>
+          <label>Unidade</label>
+          <select formControlName="unidadeId">
+            <option value="">Selecione</option>
+            @for (unidade of unidadesParaSelect; track unidade.id) {
+              <option [value]="unidade.id">{{ unidade.codigo }} — {{ unidade.nome }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label>Usuário</label>
+          <select formControlName="usuarioId">
+            <option value="">Selecione</option>
+            @for (usuario of usuariosDisponiveis(); track usuario.id) {
+              <option [value]="usuario.id">{{ usuario.login }}</option>
+            }
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" type="button" (click)="modalAberto = false">Cancelar</button>
+          <button class="btn btn-primary" type="submit">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (confirmarExclusao) {
+  <div class="modal-backdrop" (click)="confirmarExclusao = undefined">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2>Excluir colaborador</h2>
+      <p>Confirma a exclusão de <strong>{{ confirmarExclusao.nome }}</strong>?</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" type="button" (click)="confirmarExclusao = undefined">Cancelar</button>
+        <button class="btn btn-danger" type="button" (click)="excluir()">Excluir</button>
+      </div>
+    </div>
+  </div>
+}
